@@ -1,3 +1,4 @@
+import time
 from kafka import KafkaProducer
 from hdfs import InsecureClient
 from collections import Counter
@@ -7,8 +8,8 @@ from pyspark.sql.types import *
 from pyspark.sql.functions import explode, split, to_json, array, col, struct, udf
 from operator import add
 import locale
-locale.getdefaultlocale()
-locale.getpreferredencoding()
+#locale.getlocale()
+#locale.getencoding()
 
 
 
@@ -26,9 +27,19 @@ with open('./users.json') as f:
         if counter > 3:
             break
 
+time.sleep(1)
+# repos get inserted into kafka
+with open('./repos.json') as f:
+    counter = 0
+    lines = f.readlines()
+    for line in lines:
+        b = bytes(line, 'utf-8')
+        producer.send('repos',value=b)
+        counter += 1
+        if counter > 3:
+            break
 
 # events get inserted into kafka
-producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
 with open('./events.json') as f:
     counter = 0
     lines = f.readlines()
@@ -39,17 +50,9 @@ with open('./events.json') as f:
         if counter > 3:
             break
 
-# repos get inserted into kafka
-producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
-with open('./repos.json') as f:
-    counter = 0
-    lines = f.readlines()
-    for line in lines:
-        b = bytes(line, 'utf-8')
-        producer.send('repos',value=b)
-        counter += 1
-        if counter > 3:
-            break
+time.sleep(0.5)
+
+
     
 
 """  ---  WRITE FROM KAFKA TO SPARK  --- 
