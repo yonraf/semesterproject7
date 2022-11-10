@@ -3,13 +3,7 @@ from kafka import KafkaProducer
 from hdfs import InsecureClient
 from collections import Counter
 from json import dumps, loads
-from pyspark.sql import SparkSession
-from pyspark.sql.types import *
-from pyspark.sql.functions import explode, split, to_json, array, col, struct, udf
 from operator import add
-import locale
-#locale.getlocale()
-#locale.getencoding()
 
 
 
