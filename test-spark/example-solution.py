@@ -1,12 +1,11 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, StringType
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType
 from pyspark.sql.functions import explode, split, to_json, array, col, struct, udf, from_json
 from operator import add
 import locale
 locale.getdefaultlocale()
 locale.getpreferredencoding()
 
-print("KIKO FRA EUROPAPAPPA")
 
 # Create SparkSession and configure it
 spark = SparkSession.builder.appName('streamTest') \
@@ -17,52 +16,47 @@ spark = SparkSession.builder.appName('streamTest') \
     .config('spark.sql.streaming.checkpointLocation','hdfs://namenode:9000/stream-checkpoint/') \
     .getOrCreate()
 
+
 # Create a read stream from Kafka and a topic
 df = spark \
     .readStream \
     .format("kafka") \
     .option("kafka.bootstrap.servers", "kafka:9092") \
     .option("startingOffsets", "earliest")\
-    .option("subscribe", "users") \
+    .option("subscribe", "events") \
     .load()
 
-print('THIS IS THE CoNtEnT : ')
-# Cast to string
-sentences = df.selectExpr("CAST(value AS STRING)")
+
+def mapToOriginScheme(dataFrame):
+    schema = StructType([
+        StructField("id", StringType()),
+        StructField("type", StringType())
+    ])
+
+    dataFrame = dataFrame.selectExpr("CAST(value AS STRING)")
+    dataFrame = dataFrame.select(from_json(col("value"), schema).alias("data")).select("data.*")
+    return dataFrame
 
 
-'''
-result = sentences.writeStream withColumn("value", "Testoz")
-# Create a Kafka write stream, with the output mode "complete"
-result.select(to_json(struct([result[x] for x in result.columns])).alias("value")).select("value")\
+
+print("Helt Ny Dunya : 6969")
+print(df)
+df.printSchema()
+dataFrame = mapToOriginScheme(df)
+
+dataFrame.printSchema()
+
+
+dataFrame.select(to_json(struct([dataFrame[x] for x in dataFrame.columns])).alias("value")).select("value")\
     .writeStream\
     .format('kafka')\
-    .option("kafka.bootstrap.servers", "kafka:9092") \
-    .option("topic", "filtered users") \
-    .outputMode("append") \
-    .start().awaitTermination()
+    .outputMode("append")\
+    .option("kafka.bootstrap.servers", "kafka:9092")\
+    .option("topic", "processed_events")\
+    .start()\
+    .awaitTermination()\
+    .stop()
 
-'''
-schema = StructType([
-    StructField("login", StringType()),
-    StructField("name", StringType()),
-    StructField("location", StringType())  
-])
+spark.stop()
 
-
-test = sentences.select(from_json(col("value") , schema  ).alias("data")).select("data.*")
-
-test.printSchema()
-
-test.writeStream \
-    .format('console') \
-    .outputMode("append") \
-    .start().awaitTermination() 
-
-
-
-
-#print(" ---    VI PRINTER DF'EREN   ---")
-#df.show()
-#print(df.show())
 
