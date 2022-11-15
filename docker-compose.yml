@@ -2,6 +2,8 @@ version: "3.9"
 
 services:
   namenode:
+    healthcheck:
+      start_period: 50s
     image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
     container_name: namenode
     restart: always
@@ -119,6 +121,31 @@ services:
       - 8082:8082
     environment:
       - "SPARK_MASTER=spark://spark-master:7077"
+
+# Kafka upload topics
+  kafka-producer:
+    depends_on:
+      namenode:
+        condition: service_healthy
+    build: 
+      context: kafka-producer
+
+# Spark jobs goes here
+  spark-event-ingestor:
+    depends_on:
+      - kafka-producer
+    build:
+      context: spark-event-ingestor
+    environment:
+      - ENABLE_INIT_DAEMON=false
+
+  spark-user-ingestor:
+    depends_on:
+      - kafka-producer
+    build:
+      context: spark-user-ingestor
+    environment:
+      - ENABLE_INIT_DAEMON=false
 
 volumes:
   hadoop_namenode:

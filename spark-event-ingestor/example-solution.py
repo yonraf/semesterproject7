@@ -8,7 +8,7 @@ locale.getpreferredencoding()
 
 
 # Create SparkSession and configure it
-spark = SparkSession.builder.appName('streamTest') \
+spark = SparkSession.builder.appName('event_ingestor') \
     .config('spark.master', 'spark://spark-master:7077') \
     .config('spark.executor.cores', 1) \
     .config('spark.cores.max', 1) \
@@ -62,11 +62,11 @@ def eventsProcessing():
         .start()\
         .awaitTermination()
 
-
+'''
 def usersProcessing():
 
     # Create a read stream from Kafka and a topic
-    df = spark \
+    df = user_spark \
         .readStream \
         .format("kafka") \
         .option("kafka.bootstrap.servers", "kafka:9092") \
@@ -102,9 +102,8 @@ def usersProcessing():
         .option("kafka.bootstrap.servers", "kafka:9092")\
         .option("topic", "processed_users")\
         .start()
+'''
 
-
-usersProcessing()
 eventsProcessing()
 
 
