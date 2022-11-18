@@ -18,51 +18,6 @@ spark = SparkSession.builder.appName('user_ingestor') \
     .getOrCreate()
 
 
-'''
-def eventsProcessing():
-
-    # Create a read stream from Kafka and a topic
-    df = spark \
-        .readStream \
-        .format("kafka") \
-        .option("kafka.bootstrap.servers", "kafka:9092") \
-        .option("startingOffsets", "earliest")\
-        .option("subscribe", "events") \
-        .load()
-
-    # Generate event scheme
-    schema = StructType([
-        StructField("id", StringType()),
-        StructField("type", StringType()),
-        StructField("actor", StructType([
-            StructField("login", StringType())
-        ])),
-        StructField("repo", StructType([
-            StructField("name", StringType())
-        ])),
-        StructField("payload", StructType([
-            StructField("size", StructType([
-                StructField("$numberInt", StringType())
-            ]))
-        ])),
-        StructField("created_at", StringType())
-    ])
-
-    # Insert data into scheme
-    df = df.selectExpr("CAST(value AS STRING)")
-    df = df.select(from_json(col("value"), schema).alias("data")).select("data.*")
-
-    # Send data back to kafka
-    df.select(to_json(struct([df[x] for x in df.columns])).alias("value")).select("value")\
-        .writeStream\
-        .format('kafka')\
-        .outputMode("append")\
-        .option("kafka.bootstrap.servers", "kafka:9092")\
-        .option("topic", "processed_events")\
-        .start()\
-        .awaitTermination()
-'''
-
 def usersProcessing():
 
     # Create a read stream from Kafka and a topic
