@@ -147,6 +147,42 @@ services:
     environment:
       - ENABLE_INIT_DAEMON=false
 
+  hive-server:
+    image: bde2020/hive:2.3.2-postgresql-metastore
+    container_name: hive-server
+    env_file:
+      - ./hadoop-hive.env
+    environment:
+      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
+      SERVICE_PRECONDITION: "hive-metastore:9083"
+    ports:
+      - "10000:10000"
+
+      
+  hive-metastore:
+    image: bde2020/hive:2.3.2-postgresql-metastore
+    env_file:
+      - ./hadoop-hive.env
+    command: /opt/hive/bin/hive --service metastore
+    environment:
+      SERVICE_PRECONDITION: "namenode:9870 hive-metastore-postgresql:5432"
+    ports:
+      - "9083:9083"
+
+  hive-metastore-postgresql:
+    image: bde2020/hive-metastore-postgresql:2.3.0
+    container_name: hive-metastore-postgresql
+    volumes:
+      - ./metastore-postgresql/postgresql/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+
+      
+  presto-coordinator:
+    image: shawnzhu/prestodb:0.181
+    ports:
+      - "4200:4200"
+
 volumes:
   hadoop_namenode:
   hadoop_datanode1:
