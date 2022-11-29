@@ -9,7 +9,7 @@ locale.getpreferredencoding()
 
 
 # Create SparkSession and configure it
-spark = SparkSession.builder.appName('event_ingestor') \
+spark = SparkSession.builder.appName('repo_ingestor') \
     .config('spark.master', 'spark://spark-master:7077') \
     .config('spark.executor.cores', 1) \
     .config('spark.cores.max', 1) \
@@ -20,14 +20,14 @@ spark = SparkSession.builder.appName('event_ingestor') \
 
 
 
-def eventsProcessing():
+def reposProcessing():
     # Create a read stream from Kafka and a topic
     df = spark \
         .readStream \
         .format("kafka") \
         .option("kafka.bootstrap.servers", "kafka:9092") \
         .option("startingOffsets", "earliest")\
-        .option("subscribe", "events") \
+        .option("subscribe", "repos") \
         .load()
 
     # Generate event scheme
@@ -67,11 +67,11 @@ def eventsProcessing():
         .format('kafka')\
         .outputMode("append")\
         .option("kafka.bootstrap.servers", "kafka:9092")\
-        .option("topic", "processed_events")\
+        .option("topic", "processed_repos")\
         .start()\
         .awaitTermination()
 
     
 # Launch processing
-eventsProcessing()
+reposProcessing()
 

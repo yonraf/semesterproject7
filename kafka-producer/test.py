@@ -21,7 +21,7 @@ with open('./users.json') as f:
         if counter > 3:
             break
 
-time.sleep(1)
+time.sleep(0.5)
 # repos get inserted into kafka
 with open('./repos.json') as f:
     counter = 0

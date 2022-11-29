@@ -3,7 +3,7 @@ version: "3.9"
 services:
   namenode:
     healthcheck:
-      start_period: 30s
+      start_period: 50s
     image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
     container_name: namenode
     restart: always
@@ -58,33 +58,33 @@ services:
       - ./hadoop.env
 
   # Hive
-  hive-server:
-    image: bde2020/hive:2.3.2-postgresql-metastore
-    container_name: hive-server
-    env_file:
-      - ./hadoop-hive.env
-    environment:
-      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
-      SERVICE_PRECONDITION: "hive-metastore:9083"
-    ports:
-      - "10000:10000"
+  # hive-server:
+  #   image: bde2020/hive:2.3.2-postgresql-metastore
+  #   container_name: hive-server
+  #   env_file:
+  #     - ./hadoop-hive.env
+  #   environment:
+  #     HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
+  #     SERVICE_PRECONDITION: "hive-metastore:9083"
+  #   ports:
+  #     - "10000:10000"
 
-  hive-metastore:
-    image: bde2020/hive:2.3.2-postgresql-metastore
-    env_file:
-      - ./hadoop-hive.env
-    command: /opt/hive/bin/hive --service metastore
-    environment:
-      SERVICE_PRECONDITION: "namenode:9870 hive-metastore-postgresql:5432"
-    ports:
-      - "9083:9083"
+  # hive-metastore:
+  #   image: bde2020/hive:2.3.2-postgresql-metastore
+  #   env_file:
+  #     - ./hadoop-hive.env
+  #   command: /opt/hive/bin/hive --service metastore
+  #   environment:
+  #     SERVICE_PRECONDITION: "namenode:9870 hive-metastore-postgresql:5432"
+  #   ports:
+  #     - "9083:9083"
 
-  hive-metastore-postgresql:
-    build: 
-      context: ./hive-docker
-      dockerfile: Dockerfile
-    environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
+  # hive-metastore-postgresql:
+  #   build: 
+  #     context: ./hive-docker
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - POSTGRES_HOST_AUTH_METHOD=trust
 
 
   zookeeper:
@@ -177,12 +177,11 @@ services:
     environment:
       - ENABLE_INIT_DAEMON=false
 
-  # Kafka upload topics
-  hdfs-writer:
-    depends_on:
-      - spark-event-ingestor
-    build: 
-      context: kafka-producer
+  #hdfs-writer:
+  #  depends_on:
+  #    - spark-event-ingestor
+  #  build: 
+  #    context: hdfs-writer
 
   presto-coordinator:
     image: shawnzhu/prestodb:0.181

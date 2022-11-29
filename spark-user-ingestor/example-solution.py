@@ -32,10 +32,10 @@ def usersProcessing():
     # Generate event scheme
     schema = StructType([
         StructField("login", StringType()),
-        StructField("location", StringType()),
+        #StructField("location", StringType()),
         StructField("public_repos", StructType([
             StructField("$numberInt", StringType())
-        ])),
+        ])), 
         StructField("followers", StructType([
             StructField("$numberInt", StringType())
         ])),
@@ -47,7 +47,18 @@ def usersProcessing():
 
     # Insert data into scheme
     df = df.selectExpr("CAST(value AS STRING)")
-    df = df.select(from_json(col("value"), schema).alias("data")).select("data.*")
+    df = df.select(from_json(col("value"), schema).alias(
+        "data")).select("data.*")
+
+    # Drop unwanted columns
+    df = df.withColumn("Username", col("login")) \
+        .withColumn("Followers", col("followers.$numberInt")) \
+        .withColumn("Following", col("following.$numberInt")) \
+        .withColumn("Repositories", col("public_repos.$numberInt")) \
+        .drop(col("public_repos")) \
+        .drop(col("login"))        
+
+
 
     # Send data back to kafka
     df.select(to_json(struct([df[x] for x in df.columns])).alias("value")).select("value")\
@@ -58,6 +69,7 @@ def usersProcessing():
         .option("topic", "processed_users")\
         .start()\
         .awaitTermination()
+
 
 usersProcessing()
 
