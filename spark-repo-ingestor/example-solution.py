@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, StringType, IntegerType
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, BooleanType
 from pyspark.sql.functions import explode, split, to_json, array, col, struct, udf, from_json
 from operator import add
 import locale
@@ -32,21 +32,19 @@ def reposProcessing():
 
     # Generate event scheme
     schema = StructType([
-        StructField("id", StringType()),
-        StructField("type", StringType()),
-        StructField("actor", StructType([
-            StructField("login", StringType())
-        ])),
-        StructField("repo", StructType([
-            StructField("name", StringType())
-        ])),
-        StructField("payload", StructType([
-            StructField("size", StructType([
+        StructField("size", StructType([
                 StructField("$numberInt", StringType())
-            ]))
         ])),
-        StructField("created_at", StringType())
-    ])
+        StructField("stargazers_count", StructType([
+                StructField("$numberInt", StringType())
+        ])),
+        StructField("watchers_count", StructType([
+                StructField("$numberInt", StringType())
+        ])),
+        StructField("forks_count", StructType([
+                StructField("$numberInt", StringType())
+        ])),
+        StructField("has_wiki", BooleanType())])
 
     # Insert data into scheme
     df = df.selectExpr("CAST(value AS STRING)")

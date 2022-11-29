@@ -152,6 +152,16 @@ services:
     environment:
       - "SPARK_MASTER=spark://spark-master:7077"
 
+  spark-worker-3:
+    image: bde2020/spark-worker:3.3.0-hadoop3.3
+    container_name: spark-worker-3
+    depends_on:
+      - spark-master
+    ports:
+      - 8083:8083
+    environment:
+      - "SPARK_MASTER=spark://spark-master:7077"
+
 # Kafka upload topics
   kafka-producer:
     depends_on:
@@ -174,6 +184,14 @@ services:
       - kafka-producer
     build:
       context: spark-user-ingestor
+    environment:
+      - ENABLE_INIT_DAEMON=false
+
+  spark-repo-ingestor:
+    depends_on:
+      - kafka-producer
+    build:
+      context: spark-repo-ingestor
     environment:
       - ENABLE_INIT_DAEMON=false
 
