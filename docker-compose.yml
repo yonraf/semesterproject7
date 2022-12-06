@@ -180,8 +180,16 @@ services:
       
   presto-coordinator:
     image: shawnzhu/prestodb:0.181
-    ports:
+    container_name: presto-server
+    expose:
       - "4200:4200"
+
+  node-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
 
 volumes:
   hadoop_namenode:
