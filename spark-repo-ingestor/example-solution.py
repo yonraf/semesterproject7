@@ -13,10 +13,10 @@ spark = SparkSession.builder.appName('repo_ingestor') \
     .config('spark.master', 'spark://spark-master:7077') \
     .config('spark.executor.cores', 1) \
     .config('spark.cores.max', 1) \
-    .config('spark.executor.memory', '1g') \
     .config('spark.sql.streaming.checkpointLocation', 'hdfs://namenode:9000/stream-checkpoint/') \
-    .config('spark.streaming.concurrentJobs', 2)\
     .getOrCreate()
+
+    #.config('spark.executor.memory', '1g') \
 
 
 
@@ -32,6 +32,7 @@ def reposProcessing():
 
     # Generate event scheme
     schema = StructType([
+        StructField("full_name", StringType()),
         StructField("size", StructType([
                 StructField("$numberInt", StringType())
         ])),
@@ -51,13 +52,11 @@ def reposProcessing():
     df = df.select(from_json(col("value"), schema).alias("data")).select("data.*")
 
     # Drop unwanted columns (THIS WORKS)
-    df = df.withColumn("ID",col("id")) \
-    .withColumn("Type",col("type")) \
-    .withColumn("User",col("actor.login")) \
-    .withColumn("Repo",col("repo.name")) \
-    .withColumn("Size",col("payload.size.$numberInt")) \
-    .drop(col("actor")) \
-    .drop(col("payload"))
+    df = df.withColumn("Name",col("full_name")) \
+    .withColumn("Size",col("size.$numberInt")) \
+    .withColumn("Stars",col("stargazers_count.$numberInt")) \
+    .withColumn("Stars",col("watchers_count.$numberInt")) \
+    .withColumn("Forks",col("forks_count.$numberInt"))
 
     # Send data back to kafka
     df.select(to_json(struct([df[x] for x in df.columns])).alias("value")).select("value")\
@@ -69,7 +68,6 @@ def reposProcessing():
         .start()\
         .awaitTermination()
 
-    
 # Launch processing
 reposProcessing()
 

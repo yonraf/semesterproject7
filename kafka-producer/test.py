@@ -1,16 +1,51 @@
 import time
-from kafka import KafkaProducer
-from hdfs import InsecureClient
+from kafka import KafkaProducer, KafkaConsumer
+#from hdfs import InsecureClient
 from collections import Counter
 from json import dumps, loads
 from operator import add
+import requests
 
 
 
+# consumer = KafkaConsumer(bootstrap_servers=['kafka:9092'], group_id='group1')
 
-"""  ---  WRITE FROM LOCAL TO KAFKA TOPICS  ---  """
+# topics = consumer.topics()
+
+# while len(topics) == 0:
+#     topics = consumer.topics()
+#     time.sleep(0.5)
+
+# x = 404
+
+# while True:
+#     try:
+#         x = requests.get('http://localhost:8080').status_code
+#     except:
+#         time.sleep(0.5)
+    
+#     if x == 200:
+#         break
+
+# consumer = KafkaConsumer(bootstrap_servers=['kafka:9092'], group_id='group1')
+# while len(topics) == 0:
+#      topics = consumer.topics()
+#      time.sleep(0.5)
+
+""" ---  WRITE FROM LOCAL TO KAFKA TOPICS  --- """
 # users get inserted into kafka
-producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
+
+while True:
+    try:
+        producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
+        time.sleep(0.5)
+        consumer = KafkaConsumer(bootstrap_servers=['kafka:9092'], group_id='group1')
+        if len(consumer.topics()) > 1:
+            break
+
+    except:
+        time.sleep(0.5)
+    
 with open('./users.json') as f:
     counter = 0
     lines = f.readlines()
@@ -21,7 +56,7 @@ with open('./users.json') as f:
         if counter > 3:
             break
 
-time.sleep(0.5)
+time.sleep(0.25)
 # repos get inserted into kafka
 with open('./repos.json') as f:
     counter = 0
@@ -32,6 +67,8 @@ with open('./repos.json') as f:
         counter += 1
         if counter > 3:
             break
+
+time.sleep(0.25)
 
 # events get inserted into kafka
 with open('./events.json') as f:
@@ -44,12 +81,12 @@ with open('./events.json') as f:
         if counter > 3:
             break
 
-time.sleep(0.5)
+time.sleep(0.25)
 
 
     
 
-"""  ---  WRITE FROM KAFKA TO SPARK  --- 
+""" ---  WRITE FROM KAFKA TO SPARK  --- 
 # Create SparkSession and configure it
 spark = SparkSession.builder.appName('streamTest') \
     .config('spark.master','spark://spark-master:7077') \

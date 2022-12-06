@@ -13,11 +13,10 @@ spark = SparkSession.builder.appName('event_ingestor') \
     .config('spark.master', 'spark://spark-master:7077') \
     .config('spark.executor.cores', 1) \
     .config('spark.cores.max', 1) \
-    .config('spark.executor.memory', '1g') \
     .config('spark.sql.streaming.checkpointLocation', 'hdfs://namenode:9000/stream-checkpoint/') \
-    .config('spark.streaming.concurrentJobs', 2)\
     .getOrCreate()
 
+    #.config('spark.executor.memory', '1g') \
 
 
 def eventsProcessing():

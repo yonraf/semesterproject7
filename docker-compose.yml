@@ -18,6 +18,7 @@ services:
     env_file:
       - ./hadoop.env
 
+
   datanode1:
     image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
     container_name: datanode1
@@ -179,6 +180,14 @@ services:
     environment:
       - ENABLE_INIT_DAEMON=false
 
+  # spark-repo-ingestor:
+  #   depends_on:
+  #     - kafka-producer
+  #   build:
+  #     context: spark-repo-ingestor
+  #   environment:
+  #     - ENABLE_INIT_DAEMON=false
+
   spark-user-ingestor:
     depends_on:
       - kafka-producer
@@ -186,20 +195,12 @@ services:
       context: spark-user-ingestor
     environment:
       - ENABLE_INIT_DAEMON=false
-
-  spark-repo-ingestor:
-    depends_on:
-      - kafka-producer
-    build:
-      context: spark-repo-ingestor
-    environment:
-      - ENABLE_INIT_DAEMON=false
-
-  #hdfs-writer:
-  #  depends_on:
-  #    - spark-event-ingestor
-  #  build: 
-  #    context: hdfs-writer
+  
+  # hdfs-writer:
+  #   depends_on:
+  #     - spark-event-ingestor
+  #   build: 
+  #     context: hdfs-writer
 
   presto-coordinator:
     image: shawnzhu/prestodb:0.181
