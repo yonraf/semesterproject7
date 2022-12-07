@@ -40,7 +40,7 @@ while True:
         producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
         time.sleep(0.5)
         consumer = KafkaConsumer(bootstrap_servers=['kafka:9092'], group_id='group1')
-        if len(consumer.topics()) > 1:
+        if len(consumer.topics()) > 0:
             break
 
     except:

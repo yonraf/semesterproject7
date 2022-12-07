@@ -180,13 +180,13 @@ services:
     environment:
       - ENABLE_INIT_DAEMON=false
 
-  # spark-repo-ingestor:
-  #   depends_on:
-  #     - kafka-producer
-  #   build:
-  #     context: spark-repo-ingestor
-  #   environment:
-  #     - ENABLE_INIT_DAEMON=false
+  spark-repo-ingestor:
+    depends_on:
+      - kafka-producer
+    build:
+      context: spark-repo-ingestor
+    environment:
+      - ENABLE_INIT_DAEMON=false
 
   spark-user-ingestor:
     depends_on:
