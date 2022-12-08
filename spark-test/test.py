@@ -229,7 +229,7 @@ def has_no_wiki():
 
 
 @app.route('/haswiki')
-def has_no_wiki():
+def has_wiki():
     
     df = spark.read.json(servers)
     # df.createOrReplaceTempView("repos")
