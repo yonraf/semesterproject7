@@ -170,26 +170,17 @@ services:
       - "9083:9083"
 
   hive-metastore-postgresql:
-    image: bde2020/hive-metastore-postgresql:2.3.0
     container_name: hive-metastore-postgresql
-    volumes:
-      - ./metastore-postgresql/postgresql/data:/var/lib/postgresql/data
+    build: 
+      context: ./hive-docker
+      dockerfile: Dockerfile
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
-
       
   presto-coordinator:
     image: shawnzhu/prestodb:0.181
-    container_name: presto-server
-    expose:
-      - "4200:4200"
-
-  node-server:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "4200:4200"
 
 volumes:
   hadoop_namenode:
