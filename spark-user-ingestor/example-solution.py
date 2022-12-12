@@ -12,56 +12,11 @@ spark = SparkSession.builder.appName('user_ingestor') \
     .config('spark.master', 'spark://spark-master:7077') \
     .config('spark.executor.cores', 1) \
     .config('spark.cores.max', 1) \
-    .config('spark.executor.memory', '1g') \
     .config('spark.sql.streaming.checkpointLocation', 'hdfs://namenode:9000/stream-checkpoint/') \
-    .config('spark.streaming.concurrentJobs', 2)\
     .getOrCreate()
 
+    #.config('spark.executor.memory', '1g') \
 
-'''
-def eventsProcessing():
-
-    # Create a read stream from Kafka and a topic
-    df = spark \
-        .readStream \
-        .format("kafka") \
-        .option("kafka.bootstrap.servers", "kafka:9092") \
-        .option("startingOffsets", "earliest")\
-        .option("subscribe", "events") \
-        .load()
-
-    # Generate event scheme
-    schema = StructType([
-        StructField("id", StringType()),
-        StructField("type", StringType()),
-        StructField("actor", StructType([
-            StructField("login", StringType())
-        ])),
-        StructField("repo", StructType([
-            StructField("name", StringType())
-        ])),
-        StructField("payload", StructType([
-            StructField("size", StructType([
-                StructField("$numberInt", StringType())
-            ]))
-        ])),
-        StructField("created_at", StringType())
-    ])
-
-    # Insert data into scheme
-    df = df.selectExpr("CAST(value AS STRING)")
-    df = df.select(from_json(col("value"), schema).alias("data")).select("data.*")
-
-    # Send data back to kafka
-    df.select(to_json(struct([df[x] for x in df.columns])).alias("value")).select("value")\
-        .writeStream\
-        .format('kafka')\
-        .outputMode("append")\
-        .option("kafka.bootstrap.servers", "kafka:9092")\
-        .option("topic", "processed_events")\
-        .start()\
-        .awaitTermination()
-'''
 
 def usersProcessing():
 
@@ -77,10 +32,10 @@ def usersProcessing():
     # Generate event scheme
     schema = StructType([
         StructField("login", StringType()),
-        StructField("location", StringType()),
+        #StructField("location", StringType()),
         StructField("public_repos", StructType([
             StructField("$numberInt", StringType())
-        ])),
+        ])), 
         StructField("followers", StructType([
             StructField("$numberInt", StringType())
         ])),
@@ -92,7 +47,18 @@ def usersProcessing():
 
     # Insert data into scheme
     df = df.selectExpr("CAST(value AS STRING)")
-    df = df.select(from_json(col("value"), schema).alias("data")).select("data.*")
+    df = df.select(from_json(col("value"), schema).alias(
+        "data")).select("data.*")
+
+    # Drop unwanted columns
+    df = df.withColumn("Username", col("login")) \
+        .withColumn("Followers", col("followers.$numberInt")) \
+        .withColumn("Following", col("following.$numberInt")) \
+        .withColumn("Repositories", col("public_repos.$numberInt")) \
+        .drop(col("public_repos")) \
+        .drop(col("login"))        
+
+
 
     # Send data back to kafka
     df.select(to_json(struct([df[x] for x in df.columns])).alias("value")).select("value")\
@@ -103,6 +69,7 @@ def usersProcessing():
         .option("topic", "processed_users")\
         .start()\
         .awaitTermination()
+
 
 usersProcessing()
 
