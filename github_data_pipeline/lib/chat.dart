@@ -21,6 +21,8 @@ import 'package:sound_stream/sound_stream.dart';
 // TODO import Dialogflow
 import 'package:dialogflow_grpc/dialogflow_grpc.dart';
 import 'package:dialogflow_grpc/generated/google/cloud/dialogflow/v2beta1/session.pb.dart';
+import 'package:http/http.dart' as http;
+
 
 class Chat extends StatefulWidget {
   Chat({Key? key}) : super(key: key);
@@ -36,13 +38,15 @@ class _ChatState extends State<Chat> {
   bool _isRecording = false;
 
   RecorderStream _recorder = RecorderStream();
-   late StreamSubscription _recorderStatus;
-   late StreamSubscription<List<int>> _audioStreamSubscription;
-   late BehaviorSubject<List<int>> _audioStream;
+  late StreamSubscription _recorderStatus;
+  late StreamSubscription<List<int>> _audioStreamSubscription;
+  late BehaviorSubject<List<int>> _audioStream;
 
   // TODO DialogflowGrpcV2Beta1 class instance
 
-   DialogflowGrpcV2Beta1 ? dialogflow;
+  DialogflowGrpcV2Beta1 ? dialogflow;
+
+
 
   @override
   void initState() {
@@ -76,7 +80,7 @@ class _ChatState extends State<Chat> {
     final serviceAccount = ServiceAccount.fromString(
         '${(await rootBundle.loadString('assets/credentials.json'))}');
     // Create a DialogflowGrpc Instance
-     dialogflow = DialogflowGrpcV2Beta1.viaServiceAccount(serviceAccount);
+    dialogflow = DialogflowGrpcV2Beta1.viaServiceAccount(serviceAccount);
   }
 
   void stopStream() async {
@@ -84,6 +88,82 @@ class _ChatState extends State<Chat> {
     await _audioStreamSubscription?.cancel();
     await _audioStream?.close();
   }
+
+
+  Future<String> handleFulfillment(fulfillmentText) async {
+    http.Response response;
+
+    if (fulfillmentText == "mostrepositories") {
+      response = await http.get(Uri.parse("localhost:3000/user/most/repos"));
+      fulfillmentText = response.body;
+    } else if (fulfillmentText == "leastrepositories") {
+      response = await http.get(Uri.parse("localhost:3000/user/least/repos"));
+      fulfillmentText = response.body;
+    } else if (fulfillmentText == "mostfollowing") {
+      response =
+      await http.get(Uri.parse("localhost:3000/user/most/following"));
+      fulfillmentText = response.body;
+    } else if (fulfillmentText == "leastfollowing") {
+      response =
+      await http.get(Uri.parse("localhost:3000/user/least/following"));
+          fulfillmentText = response.body;
+          } else if(fulfillmentText == "mostfollowers")
+      {
+        response =
+        await http.get(Uri.parse("localhost:3000/user/most/followers"));
+            fulfillmentText = response.body;
+            } else if(fulfillmentText == "leastfollowers")
+        {
+          response =
+          await http.get(Uri.parse("localhost:3000/user/least/following"));
+              fulfillmentText = response.body;
+              } else if(fulfillmentText == "moststars")
+          {
+            response =
+            await http.get(Uri.parse("localhost:3000/repos/most/stars"));
+                fulfillmentText = response.body;
+                } else if(fulfillmentText == "leaststars")
+            {
+              response =
+              await http.get(Uri.parse("localhost:3000/repos/least/stars"));
+                  fulfillmentText = response.body;
+                  } else if(fulfillmentText == "mostforks")
+              {
+                response =
+                await http.get(Uri.parse("localhost:3000/repos/most/forks"));
+                    fulfillmentText = response.body;
+                    } else if(fulfillmentText == "mostwatchers")
+                {
+                  response = await http.get(
+                      Uri.parse("localhost:3000/repos/most/watching"));
+                      fulfillmentText = response.body;
+                      } else if(fulfillmentText == "leastwatchers")
+                  {
+                    response = await http.get(
+                        Uri.parse("localhost:3000/repos/least/watchers"));
+                        fulfillmentText = response.body;
+                        } else if(fulfillmentText == "leastforks")
+                    {
+                      response = await http.get(
+                          Uri.parse("localhost:3000/repos/least/forks"));
+                          fulfillmentText = response.body;
+                          }
+                          else if(fulfillmentText == "mostcommonevent")
+                      {
+                        response = await http.get(
+                            Uri.parse("localhost:3000/event/most/common"));
+                            fulfillmentText = response.body;
+                            }
+                            else if(fulfillmentText == "leastcommonevent")
+                        {
+                          response = await http.get(Uri.parse(
+                              "localhost:3000/event/least/common"));
+                              } else {
+                          fulfillmentText = "Sorry, I am not familiar with this question.";
+                          }
+                            return fulfillmentText;
+                          }
+
 
   void handleSubmitted(text) async {
     print(text);
@@ -99,16 +179,18 @@ class _ChatState extends State<Chat> {
     setState(() {
       _messages.insert(0, message);
     });
-    DetectIntentResponse? data = await dialogflow?.detectIntent(text, 'en-US') ;
+    DetectIntentResponse? data = await dialogflow?.detectIntent(text, 'en-US');
     String? fulfillmentText = data?.queryResult.fulfillmentText;
     print(fulfillmentText);
 
-  // HANDLE FULFILLMENT HERE
+    // HANDLE FULFILLMENT HERE
+
+    String? github = await handleFulfillment(fulfillmentText);
 
 
-    if(fulfillmentText!.isNotEmpty) {
+    if (fulfillmentText!.isNotEmpty) {
       ChatMessage botMessage = ChatMessage(
-        text: fulfillmentText,
+        text: github,
         name: "Bot",
         type: false,
       );
@@ -118,6 +200,7 @@ class _ChatState extends State<Chat> {
       });
     }
   }
+
 
   void handleStream() async {
     _recorder.start();
@@ -153,19 +236,21 @@ class _ChatState extends State<Chat> {
         speechContexts: [biasList]
     );
 
-    final responseStream = dialogflow?.streamingDetectIntent(config, _audioStream);
+    final responseStream = dialogflow?.streamingDetectIntent(
+        config, _audioStream);
     // Get the transcript and detectedIntent and show on screen
     responseStream!.listen((data) {
       //print('----');
-      setState(() {
+      setState(() async {
         print(data);
         String transcript = data.recognitionResult.transcript;
         String queryText = data.queryResult.queryText;
         String fulfillmentText = data.queryResult.fulfillmentText;
 
-      // HANDLE FULFILLMENT HERE
+        // HANDLE FULFILLMENT HERE
+        String? github = await handleFulfillment(fulfillmentText);
 
-        if(fulfillmentText.isNotEmpty) {
+        if (fulfillmentText.isNotEmpty) {
           ChatMessage message = ChatMessage(
             text: queryText,
             name: "You",
@@ -173,7 +258,7 @@ class _ChatState extends State<Chat> {
           );
 
           ChatMessage botMessage = ChatMessage(
-            text: fulfillmentText,
+            text: github,
             name: "Bot",
             type: false,
           );
@@ -181,16 +266,14 @@ class _ChatState extends State<Chat> {
           _messages.insert(0, message);
           _textController.clear();
           _messages.insert(0, botMessage);
-
         }
-        if(transcript.isNotEmpty) {
+        if (transcript.isNotEmpty) {
           _textController.text = transcript;
         }
-
       });
-    },onError: (e){
+    }, onError: (e) {
       //print(e);
-    },onDone: () {
+    }, onDone: () {
       //print('done');
     });
   }
@@ -210,9 +293,13 @@ class _ChatState extends State<Chat> {
           )),
       Divider(height: 1.0),
       Container(
-          decoration: BoxDecoration(color: Theme.of(context).cardColor),
+          decoration: BoxDecoration(color: Theme
+              .of(context)
+              .cardColor),
           child: IconTheme(
-            data: IconThemeData(color: Theme.of(context).accentColor),
+            data: IconThemeData(color: Theme
+                .of(context)
+                .accentColor),
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Row(
@@ -221,7 +308,8 @@ class _ChatState extends State<Chat> {
                     child: TextField(
                       controller: _textController,
                       onSubmitted: handleSubmitted,
-                      decoration: InputDecoration.collapsed(hintText: "Send a message"),
+                      decoration: InputDecoration.collapsed(
+                          hintText: "Send a message"),
                     ),
                   ),
                   Container(
@@ -285,7 +373,10 @@ class ChatMessage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
-            Text(this.name, style: Theme.of(context).textTheme.subtitle1),
+            Text(this.name, style: Theme
+                .of(context)
+                .textTheme
+                .subtitle1),
             Container(
               margin: const EdgeInsets.only(top: 5.0),
               child: Text(text),
