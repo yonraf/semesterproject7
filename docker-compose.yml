@@ -187,45 +187,7 @@ services:
     build: 
       context: hdfs-writer
 
-  presto-coordinator:
-    image: shawnzhu/prestodb:0.181
-    ports:
-      - "8085:8085"
-
-  hive-server:
-    image: bde2020/hive:2.3.2-postgresql-metastore
-    container_name: hive-server
-    env_file:
-      - ./hadoop-hive.env
-    environment:
-      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
-      SERVICE_PRECONDITION: "hive-metastore:9083"
-    ports:
-      - "10000:10000"
-
-      
-  hive-metastore:
-    image: bde2020/hive:2.3.2-postgresql-metastore
-    env_file:
-      - ./hadoop-hive.env
-    command: /opt/hive/bin/hive --service metastore
-    environment:
-      SERVICE_PRECONDITION: "namenode:9870 hive-metastore-postgresql:5432"
-    ports:
-      - "9083:9083"
-
-  hive-metastore-postgresql:
-    container_name: hive-metastore-postgresql
-    build: 
-      context: ./hive-docker
-      dockerfile: Dockerfile
-    environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
-      
-  presto-coordinator:
-    image: shawnzhu/prestodb:0.181
-    ports:
-      - "4200:4200"
+  
 
 volumes:
   hadoop_namenode:
