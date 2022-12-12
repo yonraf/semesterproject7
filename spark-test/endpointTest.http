@@ -1,0 +1,20 @@
+###Get /
+GET http://127.0.0.1:3000/
+
+### user with most repos
+GET http://127.0.0.1:3000/user/most/repos
+
+### repos least forks
+GET http://127.0.0.1:3000/repos/least/forks
+
+### repos has wiki
+GET http://127.0.0.1:3000/repos/has/wiki
+
+### repos has no wiki
+GET http://127.0.0.1:3000/repos/no/wiki
+
+### Most common event
+GET http://127.0.0.1:3000/event/most/common
+
+### Most least event
+GET http://127.0.0.1:3000/event/most/common

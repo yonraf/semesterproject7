@@ -122,7 +122,7 @@ def least_followings():
     return json.dumps(data)
 
 # What repository has the (most/least) number of (stars/forks/watchers)?
-app.route('/repos/most/stars')
+@app.route('/repos/most/stars')
 def most_stars():
     
     df = spark.read.json(reposPath)
@@ -138,7 +138,7 @@ def most_stars():
     return json.dumps(data)
 
 
-app.route('/repos/least/stars')
+@app.route('/repos/least/stars')
 def least_stars():
     
     df = spark.read.json(reposPath)
@@ -153,7 +153,7 @@ def least_stars():
     
     return json.dumps(data)
 
-app.route('/repos/most/watchers')
+@app.route('/repos/most/watchers')
 def most_watchers():
     
     df = spark.read.json(reposPath)
@@ -168,7 +168,7 @@ def most_watchers():
     
     return json.dumps(data)
 
-app.route('/repos/least/watchers')
+@app.route('/repos/least/watchers')
 def least_watchers():
     
     df = spark.read.json(reposPath)
@@ -183,7 +183,7 @@ def least_watchers():
     
     return json.dumps(data)
 
-app.route('/repos/most/forks')
+@app.route('/repos/most/forks')
 def most_forks():
     
     df = spark.read.json(reposPath)
@@ -198,7 +198,7 @@ def most_forks():
     
     return json.dumps(data)
 
-app.route('/repos/least/forks')
+@app.route('/repos/least/forks')
 def least_forks():
     
     df = spark.read.json(reposPath)
@@ -227,13 +227,12 @@ def has_no_wiki():
     # row = df.filter(df["has_wiki"] == False).collect()
     
     print(query)
-    print(query.collect())
 
     # data = {
     #     'amount': row.length
     # }
     
-    return json.dumps(query.collect)
+    return query.collect()
 
 
 @app.route('/repos/has/wiki')
@@ -249,19 +248,67 @@ def has_wiki():
     
     
 
+    print(query)
+
     # data = {
     #     'amount': row.length
     # }
-
-
-    # print(data)
     
-    return json.dumps(query.collect)
+    return query.collect()
+
+# What is the most/least common event?
+@app.route('/event/most/common')
+def most_common_event():
+
+    df = spark.read.json(eventsPath)
+    df.createOrReplaceTempView('events')
+
+    query = spark.sql(
+        'SELECT Type, COUNT(Type) AS count FROM events GROUP BY Type ORDER BY COUNT(Type) DESC LIMIT 1')
 
 
+    data = query.collect()[0][0]
 
+    return 'The most common event is '+ data
 
+@app.route('/event/least/common')
+def least_common_event():
 
+    df = spark.read.json(eventsPath)
+    df.createOrReplaceTempView('events')
+
+    query = spark.sql(
+        'SELECT Type, COUNT(Type) AS count FROM events GROUP BY Type ORDER BY COUNT(Type) LIMIT 1')
+
+    data = query.collect()[0][0]
+
+    return 'The least common event is '+ data
+
+@app.route('/event/first')
+def first_event():
+
+    df = spark.read.json(eventsPath)
+    df.createOrReplaceTempView('events')
+
+    query = spark.sql(
+        'SELECT Type, COUNT(Type) AS count FROM events GROUP BY Type ORDER BY COUNT(Type) LIMIT 1')
+
+    data = query.collect()[0][0]
+
+    return 'The least common event is '+ data
+
+@app.route('/event/last')
+def last_event():
+
+    df = spark.read.json(eventsPath)
+    df.createOrReplaceTempView('events')
+
+    query = spark.sql(
+        'SELECT Type, COUNT(Type) AS count FROM events GROUP BY Type ORDER BY COUNT(Type) LIMIT 1')
+
+    data = query.collect()[0][0]
+
+    return 'The least common event is '+ data
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=3000)
