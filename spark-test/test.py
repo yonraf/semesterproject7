@@ -64,7 +64,7 @@ def most_followers():
     df = spark.read.json(usersPath)
     df.createOrReplaceTempView("users")
 
-    query = spark.sql("SELECT Username, Followers FROM users WHERE Followers in (select max(INT(Followers) FROM users)")
+    query = spark.sql("SELECT Username, INT(Followers) FROM users WHERE Followers in (select max(INT(Followers)) FROM users)  LIMIT 1")
 
     data = query.collect()[0]
     
@@ -79,7 +79,7 @@ def least_followers():
     df = spark.read.json(usersPath)
     df.createOrReplaceTempView("users")
 
-    query = spark.sql("SELECT Username, Followers FROM users WHERE Followers in (select min(INT(Followers)) FROM users)")
+    query = spark.sql("SELECT Username, INT(Followers) FROM users WHERE Followers in (select min(INT(Followers)) FROM users)")
 
     data = query.collect()[0]
     
@@ -94,7 +94,7 @@ def most_followings():
     df = spark.read.json(usersPath)
     df.createOrReplaceTempView("users")
 
-    query = spark.sql("SELECT Username, Following FROM users WHERE Following in (select max(INT(Following)) FROM users)")
+    query = spark.sql("SELECT Username, INT(Following) FROM users WHERE Following in (select max(INT(Following)) FROM users)")
 
     data = query.collect()[0]
     
@@ -109,7 +109,7 @@ def least_followings():
     df = spark.read.json(usersPath)
     df.createOrReplaceTempView("users")
 
-    query = spark.sql("SELECT Username, Following FROM users WHERE Following in (select min(INT(Following)) FROM users)")
+    query = spark.sql("SELECT Username, INT(Following) FROM users WHERE Following in (select min(INT(Following)) FROM users)")
 
     data = query.collect()[0]
     
@@ -125,12 +125,12 @@ def most_stars():
     df = spark.read.json(reposPath)
     df.createOrReplaceTempView("repos")
 
-    query = spark.sql("SELECT Name, Stars FROM repos WHERE Stars in (select max(INT(Stars)) FROM repos)")
+    query = spark.sql("SELECT Name, INT(Stars) FROM repos WHERE Stars in (select max(INT(Stars)) FROM repos)")
 
     data = query.collect()[0]
     
     name = data['Name']
-    stars = data['Stars']
+    stars = data['Stargazers']
     
     return name + ' is the repository with most stars of ' + str(stars)
 
@@ -141,7 +141,7 @@ def least_stars():
     df = spark.read.json(reposPath)
     df.createOrReplaceTempView("repos")
 
-    query = spark.sql("SELECT Name, Stars FROM repos WHERE Stars in (select min(INT(Stars)) FROM repos)")
+    query = spark.sql("SELECT Name, INT(Stars) FROM repos WHERE Stars in (select min(INT(Stars)) FROM repos)")
 
     data = query.collect()[0]
     
@@ -156,7 +156,7 @@ def most_watchers():
     df = spark.read.json(reposPath)
     df.createOrReplaceTempView("repos")
 
-    query = spark.sql("SELECT Name, Watchers FROM repos WHERE Watchers in (select max(INT(Watchers)) FROM repos)")
+    query = spark.sql("SELECT Name, INT(Watchers) FROM repos WHERE Watchers in (select max(INT(Watchers)) FROM repos)")
 
     data = query.collect()[0]
     
@@ -171,7 +171,7 @@ def least_watchers():
     df = spark.read.json(reposPath)
     df.createOrReplaceTempView("repos")
 
-    query = spark.sql("SELECT Name, Watchers FROM repos WHERE Watchers in (select min(INT(Watchers)) FROM repos)")
+    query = spark.sql("SELECT Name, INT(Watchers) FROM repos WHERE Watchers in (select min(INT(Watchers)) FROM repos)")
 
     data = query.collect()[0]
     
@@ -186,7 +186,7 @@ def most_forks():
     df = spark.read.json(reposPath)
     df.createOrReplaceTempView("repos")
 
-    query = spark.sql("SELECT Name, Forks FROM repos WHERE Forks in (select max(INT(Forks)) FROM repos)")
+    query = spark.sql("SELECT Name, INT(Forks) FROM repos WHERE Forks in (select max(INT(Forks)) FROM repos)")
 
     data = query.collect()[0]
     
@@ -201,7 +201,7 @@ def least_forks():
     df = spark.read.json(reposPath)
     df.createOrReplaceTempView("repos")
 
-    query = spark.sql("SELECT Name, Forks FROM repos WHERE Forks in (select min(INT(Forks)) FROM repos)")
+    query = spark.sql("SELECT Name, INT(Forks) FROM repos WHERE Forks in (select min(INT(Forks)) FROM repos)")
 
     data = query.collect()[0]
     
