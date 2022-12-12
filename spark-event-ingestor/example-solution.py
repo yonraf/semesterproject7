@@ -4,6 +4,7 @@ from pyspark.sql.functions import explode, split, to_json, array, col, struct, u
 from operator import add
 import locale
 
+
 locale.getdefaultlocale()
 locale.getpreferredencoding()
 
@@ -16,7 +17,7 @@ spark = SparkSession.builder.appName('event_ingestor') \
     .config('spark.sql.streaming.checkpointLocation', 'hdfs://namenode:9000/stream-checkpoint/') \
     .getOrCreate()
 
-    #.config('spark.executor.memory', '1g') \
+# .config('spark.executor.memory', '1g') \
 
 
 def eventsProcessing():
@@ -49,16 +50,19 @@ def eventsProcessing():
 
     # Insert data into scheme
     df = df.selectExpr("CAST(value AS STRING)")
-    df = df.select(from_json(col("value"), schema).alias("data")).select("data.*")
+    df = df.select(from_json(col("value"), schema).alias(
+        "data")).select("data.*")
 
     # Drop unwanted columns (THIS WORKS)
-    df = df.withColumn("ID",col("id")) \
-    .withColumn("Type",col("type")) \
-    .withColumn("User",col("actor.login")) \
-    .withColumn("Repo",col("repo.name")) \
-    .withColumn("Size",col("payload.size.$numberInt")) \
-    .drop(col("actor")) \
-    .drop(col("payload"))
+    df = df.withColumn("ID", col("id")) \
+        .withColumn("Type", col("type")) \
+        .withColumn("User", col("actor.login")) \
+        .withColumn("Repo", col("repo.name")) \
+        .withColumn("Size", col("payload.size.$numberInt")) \
+        .drop(col("actor")) \
+        .drop(col("payload"))
+
+    client = InsecureClient('http://namenode:9870', user='root')
 
     # Send data back to kafka
     df.select(to_json(struct([df[x] for x in df.columns])).alias("value")).select("value")\
@@ -70,7 +74,37 @@ def eventsProcessing():
         .start()\
         .awaitTermination()
 
-    
+# DELETE THIS IN FUTURE IF NOT USED
+def uploadProccessed():
+    schema = StructType([
+        StructField("ID", StringType()),
+        StructField("Type", StringType()),
+        StructField("Repo", StringType()),
+        StructField("created_at", StringType()),
+        StructField("User", StringType()),
+        StructField("Size", StringType())
+    ])
+
+    # Create a read stream from Kafka and a topic
+    df = spark \
+        .readStream \
+        .format("kafka") \
+        .option("kafka.bootstrap.servers", "kafka:9092") \
+        .option("startingOffsets", "earliest")\
+        .option("subscribe", "processed_events") \
+        .load()
+
+    df = df.selectExpr("CAST(value AS STRING)")
+    df = df.select(from_json(col("value"), schema).alias(
+        "data")).select("data.*")
+
+    df\
+        .writeStream\
+        .format('json')\
+        .option("path", "hdfs://namenode:9000/data/events.json") \
+        .outputMode("append") \
+        .start().awaitTermination()
+
+
 # Launch processing
 eventsProcessing()
-

@@ -1,40 +1,12 @@
 import time
 from kafka import KafkaProducer, KafkaConsumer
-#from hdfs import InsecureClient
+from hdfs import InsecureClient
 from collections import Counter
 from json import dumps, loads
 from operator import add
 import requests
 
-
-
-# consumer = KafkaConsumer(bootstrap_servers=['kafka:9092'], group_id='group1')
-
-# topics = consumer.topics()
-
-# while len(topics) == 0:
-#     topics = consumer.topics()
-#     time.sleep(0.5)
-
-# x = 404
-
-# while True:
-#     try:
-#         x = requests.get('http://localhost:8080').status_code
-#     except:
-#         time.sleep(0.5)
-    
-#     if x == 200:
-#         break
-
-# consumer = KafkaConsumer(bootstrap_servers=['kafka:9092'], group_id='group1')
-# while len(topics) == 0:
-#      topics = consumer.topics()
-#      time.sleep(0.5)
-
 """ ---  WRITE FROM LOCAL TO KAFKA TOPICS  --- """
-# users get inserted into kafka
-
 while True:
     try:
         producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
@@ -53,7 +25,7 @@ with open('./users.json') as f:
         b = bytes(line, 'utf-8')
         producer.send('users',value=b) 
         counter += 1
-        if counter > 3:
+        if counter > 45:
             break
 
 time.sleep(0.25)
@@ -65,7 +37,7 @@ with open('./repos.json') as f:
         b = bytes(line, 'utf-8')
         producer.send('repos',value=b)
         counter += 1
-        if counter > 3:
+        if counter > 45:
             break
 
 time.sleep(0.25)
@@ -78,7 +50,7 @@ with open('./events.json') as f:
         b = bytes(line, 'utf-8')
         producer.send('events',value=b)
         counter += 1
-        if counter > 3:
+        if counter > 45:
             break
 
 time.sleep(0.25)

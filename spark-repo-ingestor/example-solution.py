@@ -59,7 +59,8 @@ def reposProcessing():
     .withColumn("Forks",col("forks_count.$numberInt")) \
     .drop(col("stargazers_count")) \
     .drop(col("forks_count")) \
-    .drop(col("watchers_count"))
+    .drop(col("watchers_count")) \
+    .drop(col("full_name"))
 
     # Send data back to kafka
     df.select(to_json(struct([df[x] for x in df.columns])).alias("value")).select("value")\

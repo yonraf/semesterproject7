@@ -112,6 +112,19 @@ services:
     restart: unless-stopped
     depends_on:
       - zookeeper
+  
+  init-kafka:
+    image: confluentinc/cp-kafka:7.2.1
+    depends_on:
+      - kafka
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      echo -e 'Creating topics'
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic processed_events --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic processed_repos --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic processed_users --replication-factor 1 --partitions 1
+      "
 
   kowl:
     image: quay.io/cloudhut/kowl:master # We use the master tag as we want to use the latest features e.g. creation of topics.
@@ -167,7 +180,7 @@ services:
   kafka-producer:
     depends_on:
       namenode:
-        condition: service_healthy
+        condition: service_healthy                                        
     build: 
       context: kafka-producer
 
@@ -196,11 +209,12 @@ services:
     environment:
       - ENABLE_INIT_DAEMON=false
   
-  # hdfs-writer:
-  #   depends_on:
-  #     - spark-event-ingestor
-  #   build: 
-  #     context: hdfs-writer
+  hdfs-writer:
+    depends_on:
+      namenode:
+        condition: service_healthy
+    build: 
+      context: hdfs-writer
 
   presto-coordinator:
     image: shawnzhu/prestodb:0.181
