@@ -4,20 +4,47 @@ GET http://127.0.0.1:3000/
 ### user with most repos
 GET http://127.0.0.1:3000/user/most/repos
 
+### user with least repos
+GET http://127.0.0.1:3000/user/least/repos
+
+### user with most followers
+GET http://127.0.0.1:3000/user/least/followers
+
+### user with least followers
+GET http://127.0.0.1:3000/user/least/followers
+
+### user with most following
+GET http://127.0.0.1:3000/user/most/following
+
+### user with least following
+GET http://127.0.0.1:3000/user/least/following
+
+### repos most stars
+GET http://127.0.0.1:3000/repos/most/stars
+
+### repos least stars
+GET http://127.0.0.1:3000/repos/least/stars
+
+### repos most watchers
+GET http://127.0.0.1:3000/repos/most/watchers
+
+### repos least watchers
+GET http://127.0.0.1:3000/repos/least/watchers
+
+### repos most forks
+GET http://127.0.0.1:3000/repos/most/forks
+
 ### repos least forks
 GET http://127.0.0.1:3000/repos/least/forks
 
 ### repos has wiki
 GET http://127.0.0.1:3000/repos/has/wiki
 
-### repos has no wiki
-GET http://127.0.0.1:3000/repos/no/wiki
-
 ### Most common event
 GET http://127.0.0.1:3000/event/most/common
 
-### Most least event
-GET http://127.0.0.1:3000/event/most/common
+### Least common event
+GET http://127.0.0.1:3000/event/least/common
 
 ### First event
 GET http://127.0.0.1:3000//event/first
