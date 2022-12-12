@@ -62,8 +62,6 @@ def eventsProcessing():
         .drop(col("actor")) \
         .drop(col("payload"))
 
-    client = InsecureClient('http://namenode:9870', user='root')
-
     # Send data back to kafka
     df.select(to_json(struct([df[x] for x in df.columns])).alias("value")).select("value")\
         .writeStream\
@@ -73,38 +71,6 @@ def eventsProcessing():
         .option("topic", "processed_events")\
         .start()\
         .awaitTermination()
-
-# DELETE THIS IN FUTURE IF NOT USED
-def uploadProccessed():
-    schema = StructType([
-        StructField("ID", StringType()),
-        StructField("Type", StringType()),
-        StructField("Repo", StringType()),
-        StructField("created_at", StringType()),
-        StructField("User", StringType()),
-        StructField("Size", StringType())
-    ])
-
-    # Create a read stream from Kafka and a topic
-    df = spark \
-        .readStream \
-        .format("kafka") \
-        .option("kafka.bootstrap.servers", "kafka:9092") \
-        .option("startingOffsets", "earliest")\
-        .option("subscribe", "processed_events") \
-        .load()
-
-    df = df.selectExpr("CAST(value AS STRING)")
-    df = df.select(from_json(col("value"), schema).alias(
-        "data")).select("data.*")
-
-    df\
-        .writeStream\
-        .format('json')\
-        .option("path", "hdfs://namenode:9000/data/events.json") \
-        .outputMode("append") \
-        .start().awaitTermination()
-
 
 # Launch processing
 eventsProcessing()
