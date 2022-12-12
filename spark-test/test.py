@@ -35,17 +35,13 @@ def most_repos():
     
     df.createOrReplaceTempView("users")
 
-    query = spark.sql("SELECT Username, INT(Repositories) FROM users WHERE Repositories in (select max(INT(Repositories)) FROM users)")
+    query = spark.sql("SELECT Username, INT(Repositories) FROM users WHERE Repositories in (select max(INT(Repositories)) FROM users) LIMIT 1")
 
-    print(query)
-
-    row = query.collect()
-    print(row)
-    data = row[0].asDict()
-
-    print(data)
+    data = query.collect()[0]
     
-    return json.dumps(data)
+    username = data['Username']
+    repos = data['Repositories']
+    return username + ' is the user with ' + str(repos) + ' repositories'
 
 
 @app.route('/user/least/repos')
@@ -53,14 +49,13 @@ def least_repos():
     df = spark.read.json(usersPath)
     df.createOrReplaceTempView("users")
 
-    query = spark.sql("SELECT Username, INT(Repositories) FROM users WHERE Repositories in (select min(INT(Repositories)) FROM users)")
+    query = spark.sql("SELECT Username, INT(Repositories) FROM users WHERE Repositories in (select min(INT(Repositories)) FROM users) LIMIT 1")
 
-    row = query.collect()
-    data = row[0].asDict()
-
-    print(data)
+    data = query.collect()[0]
     
-    return json.dumps(data)
+    username = data['Username']
+    repos = data['Repositories']
+    return username + ' is the user with ' + str(repos) + ' repositories'
 
 @app.route('/user/most/followers')
 def most_followers():
@@ -291,11 +286,13 @@ def first_event():
     df.createOrReplaceTempView('events')
 
     query = spark.sql(
-        'SELECT Type, COUNT(Type) AS count FROM events GROUP BY Type ORDER BY COUNT(Type) LIMIT 1')
+        'SELECT TYPE FROM events LIMIT 1'
+    )
 
     data = query.collect()[0][0]
+    
 
-    return 'The least common event is '+ data
+    return 'The first event is '+ data
 
 @app.route('/event/last')
 def last_event():
@@ -304,11 +301,13 @@ def last_event():
     df.createOrReplaceTempView('events')
 
     query = spark.sql(
-        'SELECT Type, COUNT(Type) AS count FROM events GROUP BY Type ORDER BY COUNT(Type) LIMIT 1')
+        'SELECT LAST (TYPE) as Event FROM events'
+    )
 
     data = query.collect()[0][0]
 
-    return 'The least common event is '+ data
+    return 'The last event is '+ data
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=3000)
