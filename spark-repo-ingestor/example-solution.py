@@ -16,8 +16,7 @@ spark = SparkSession.builder.appName('repo_ingestor') \
     .config('spark.sql.streaming.checkpointLocation', 'hdfs://namenode:9000/stream-checkpoint/') \
     .getOrCreate()
 
-    #.config('spark.executor.memory', '1g') \
-
+# .config('spark.executor.memory', '1g') \
 
 
 def reposProcessing():
@@ -34,44 +33,46 @@ def reposProcessing():
     schema = StructType([
         StructField("full_name", StringType()),
         StructField("size", StructType([
-                StructField("$numberInt", StringType())
+            StructField("$numberInt", StringType())
         ])),
         StructField("stargazers_count", StructType([
-                StructField("$numberInt", StringType())
+            StructField("$numberInt", StringType())
         ])),
         StructField("watchers_count", StructType([
-                StructField("$numberInt", StringType())
+            StructField("$numberInt", StringType())
         ])),
         StructField("forks_count", StructType([
-                StructField("$numberInt", StringType())
+            StructField("$numberInt", StringType())
         ])),
         StructField("has_wiki", BooleanType())])
 
     # Insert data into scheme
     df = df.selectExpr("CAST(value AS STRING)")
-    df = df.select(from_json(col("value"), schema).alias("data")).select("data.*")
+    df = df.select(from_json(col("value"), schema).alias(
+        "data")).select("data.*")
 
     # Drop unwanted columns (THIS WORKS)
-    df = df.withColumn("Name",col("full_name")) \
-    .withColumn("Size",col("size.$numberInt")) \
-    .withColumn("Stars",col("stargazers_count.$numberInt")) \
-    .withColumn("Watchers",col("watchers_count.$numberInt")) \
-    .withColumn("Forks",col("forks_count.$numberInt")) \
-    .drop(col("stargazers_count")) \
-    .drop(col("forks_count")) \
-    .drop(col("watchers_count")) \
-    .drop(col("full_name"))
+    df = df.withColumn("Name", col("full_name")) \
+        .withColumn("Size", col("size.$numberInt")) \
+        .withColumn("Stars", col("stargazers_count.$numberInt")) \
+        .withColumn("Watchers", col("watchers_count.$numberInt")) \
+        .withColumn("Forks", col("forks_count.$numberInt")) \
+        .drop(col("stargazers_count")) \
+        .drop(col("forks_count")) \
+        .drop(col("watchers_count")) \
+        .drop(col("full_name"))
 
-    # Send data back to kafka
-    df.select(to_json(struct([df[x] for x in df.columns])).alias("value")).select("value")\
+
+    # Write the data to HDFS
+    df.select(struct([df[x] for x in df.columns]).alias("value")).select("value")\
         .writeStream\
-        .format('kafka')\
+        .format('json')\
         .outputMode("append")\
-        .option("kafka.bootstrap.servers", "kafka:9092")\
-        .option("topic", "processed_repos")\
+        .option("path", "hdfs://namenode:9000/repos/")\
+        .option("checkpointLocation", "hdfs://namenode:9000/repos-checkpoint/")\
         .start()\
         .awaitTermination()
 
+
 # Launch processing
 reposProcessing()
-

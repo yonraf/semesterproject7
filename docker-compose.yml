@@ -179,13 +179,6 @@ services:
       context: spark-user-ingestor
     environment:
       - ENABLE_INIT_DAEMON=false
-  
-  hdfs-writer:
-    depends_on:
-      namenode:
-        condition: service_healthy
-    build: 
-      context: hdfs-writer
 
   presto-coordinator:
     image: shawnzhu/prestodb:0.181

@@ -59,62 +59,15 @@ def usersProcessing():
         .drop(col("login"))        
 
 
-
-    # Send data back to kafka
-    df.select(to_json(struct([df[x] for x in df.columns])).alias("value")).select("value")\
+    # Write the data to HDFS
+    df.select(struct([df[x] for x in df.columns]).alias("value")).select("value")\
         .writeStream\
-        .format('kafka')\
+        .format('json')\
         .outputMode("append")\
-        .option("kafka.bootstrap.servers", "kafka:9092")\
-        .option("topic", "processed_users")\
+        .option("path", "hdfs://namenode:9000/users/")\
+        .option("checkpointLocation", "hdfs://namenode:9000/users-checkpoint/")\
         .start()\
         .awaitTermination()
-
+    
 
 usersProcessing()
-
-'''
-def mapToOriginScheme(dataFrame):
-    schema = StructType([
-        StructField("id", StringType()),
-        StructField("type", StringType()),
-        StructField("actor", StructType([
-            StructField("login", StringType())
-        ])),
-        StructField("repo", StructType([
-            StructField("name", StringType())
-        ])),
-        StructField("payload", StructType([
-            StructField("size", StructType([
-                StructField("$numberInt", StringType())
-            ]))
-        ])),
-        StructField("created_at", StringType())
-    ])
-
-    dataFrame = dataFrame.selectExpr("CAST(value AS STRING)")
-    dataFrame = dataFrame.select(
-        from_json(col("value"), schema).alias("data")).select("data.*")
-    return dataFrame
-
-
-print("Helt Ny Dunya : 00099")
-print(df)
-df.printSchema()
-dataFrame = mapToOriginScheme(df)
-
-dataFrame.printSchema()
-
-
-dataFrame.select(to_json(struct([dataFrame[x] for x in dataFrame.columns])).alias("value")).select("value")\
-    .writeStream\
-    .format('kafka')\
-    .outputMode("append")\
-    .option("kafka.bootstrap.servers", "kafka:9092")\
-    .option("topic", "processed_events")\
-    .start()\
-    .awaitTermination()\
-    .stop()
-
-spark.stop()
-'''

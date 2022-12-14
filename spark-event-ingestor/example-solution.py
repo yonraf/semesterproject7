@@ -62,15 +62,17 @@ def eventsProcessing():
         .drop(col("actor")) \
         .drop(col("payload"))
 
-    # Send data back to kafka
-    df.select(to_json(struct([df[x] for x in df.columns])).alias("value")).select("value")\
+
+    # Write the data to HDFS
+    df.select(struct([df[x] for x in df.columns]).alias("value")).select("value")\
         .writeStream\
-        .format('kafka')\
+        .format('json')\
         .outputMode("append")\
-        .option("kafka.bootstrap.servers", "kafka:9092")\
-        .option("topic", "processed_events")\
+        .option("path", "hdfs://namenode:9000/events/")\
+        .option("checkpointLocation", "hdfs://namenode:9000/events-checkpoint/")\
         .start()\
         .awaitTermination()
+
 
 # Launch processing
 eventsProcessing()
