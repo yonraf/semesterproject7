@@ -64,8 +64,7 @@ def reposProcessing():
 
 
     # Write the data to HDFS
-    df.select(struct([df[x] for x in df.columns]).alias("value")).select("value")\
-        .writeStream\
+    df.writeStream\
         .format('json')\
         .outputMode("append")\
         .option("path", "hdfs://namenode:9000/repos/")\

@@ -1,97 +1,21 @@
-from kafka import KafkaConsumer
-from hdfs import InsecureClient
+from urllib.request import build_opener
+from pyspark import SparkConf, SparkContext
+from pyspark.sql import SparkSession
 import json
-import time
+import locale
+locale.getdefaultlocale()
+locale.getpreferredencoding()
 
-# Create an insecure client that works when HDFS has security turned off
-client = InsecureClient('http://namenode:9870', user='root')
-consumer = KafkaConsumer(bootstrap_servers=['kafka:9092'])
+spark = SparkSession.builder.appName('pyspark').getOrCreate()
 
-print("TOPICZ 1 : ")
-print(consumer.topics())
+eventsPath = "hdfs://namenode:9000/events/*.json"
 
-consumer.subscribe(['processed_events', 'processed_users', 'processed_repos', 'doesntexits'])
+df = spark.read.json(eventsPath)
+df.createOrReplaceTempView('events')
 
-print("TOPICZ 2 : ")
-print(consumer.topics())
-
-print("azino : ")
-print(consumer.assignment())
+query = spark.sql('SELECT Type, COUNT(Type) AS count FROM events GROUP BY Type ORDER BY COUNT(Type) LIMIT 1')
 
 
+data = query.collect()[0][0]
 
-def upload_to_hdfs(topic, data):
-
-    if topic == "processed_repos":
-        if client.status('/repos.json', strict=False) == None:
-            with client.write('/repos.json', encoding='utf-8', overwrite=True) as writer:
-                writer.write(json.dumps(data))
-                writer.write("\n")
-                print()
-        else:
-            with client.write('/repos.json', encoding='utf-8', append=True) as writer:
-                writer.write(json.dumps(data))
-                writer.write("\n")
-
-    elif topic == "processed_users":
-        if client.status('/users.json', strict=False) == None:
-            with client.write('/users.json', encoding='utf-8', overwrite=True) as writer:
-                writer.write(json.dumps(data))
-                writer.write("\n")
-        else:
-            with client.write('/users.json', encoding='utf-8', append=True) as writer:
-                writer.write(json.dumps(data))
-                writer.write("\n")
-
-    elif topic == "processed_events":
-        if client.status('/events.json', strict=False) == None:
-            with client.write('/events.json', encoding='utf-8', overwrite=True) as writer:
-                writer.write(json.dumps(data))
-                writer.write("\n")
-        else:
-            with client.write('/events.json', encoding='utf-8', append=True) as writer:
-                writer.write(json.dumps(data))
-                writer.write("\n")
-'''
-while True:
-    records = consumer.poll()
-
-    for x in records.items():
-        for index, element in enumerate(x):
-            if index % 2 == 1:
-                for data in element:
-                    data_string = data.value.decode('utf-8')
-                    topic = data.topic
-                    upload_to_hdfs(topic, data_string)
-'''
-# def upload_to_hdfs(topic, data):
-#     if topic == "processed_repos":
-#         with client.write('/repos.json', encoding='utf-8', append=True) as writer:
-#             writer.write(json.dumps(data))
-#             writer.write("\n")
-#     elif topic == "processed_users":
-#         with client.write('/users.json', encoding='utf-8', append=True) as writer:
-#             writer.write(json.dumps(data))
-#             writer.write("\n")
-#     elif topic == "processed_events":
-#         with client.write('/events.json', encoding='utf-8', append=True) as writer:
-#             writer.write(json.dumps(data))
-#             writer.write("\n")
-
-
-# while True:
-#     records = consumer.poll()
-
-#     for x in records.items():
-#         for index, element in enumerate(x):
-#             if index % 2 == 1:
-#                 for data in element:
-#                     data_string = data.value.decode('utf-8')
-#                     topic = data.topic
-#                     upload_to_hdfs(topic, data_string)
-
-
-# client = InsecureClient('http://namenode:9870', user='root')
-# client.write('/repos.json', encoding='utf-8', overwrite=True, data='')
-# client.write('/users.json', encoding='utf-8', overwrite=True, data='')
-# client.write('/events.json', encoding='utf-8', overwrite=True, data='')
+print('The least common event is '+ data) 

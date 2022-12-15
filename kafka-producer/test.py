@@ -11,10 +11,8 @@ while True:
     try:
         producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
         time.sleep(0.5)
-        consumer = KafkaConsumer(bootstrap_servers=['kafka:9092'], group_id='group1')
-        if len(consumer.topics()) > 0:
-            break
-
+        # consumer = KafkaConsumer(bootstrap_servers=['kafka:9092'], group_id='group1')
+        break
     except:
         time.sleep(0.5)
     
@@ -23,12 +21,12 @@ with open('./users.json') as f:
     lines = f.readlines()
     for line in lines:
         b = bytes(line, 'utf-8')
-        producer.send('users',value=b) 
+        producer.send('users',value=b)
         counter += 1
-        if counter > 10000:
-            break
+        if counter > 50:
+            break 
 
-time.sleep(0.25)
+time.sleep(0.5)
 
 
 # events get inserted into kafka
@@ -39,10 +37,10 @@ with open('./events.json') as f:
         b = bytes(line, 'utf-8')
         producer.send('events',value=b)
         counter += 1
-        if counter > 10000:
+        if counter > 50:
             break
 
-time.sleep(0.25)
+time.sleep(0.5)
 
 
 # repos get inserted into kafka
@@ -53,7 +51,7 @@ with open('./repos.json') as f:
         b = bytes(line, 'utf-8')
         producer.send('repos',value=b)
         counter += 1
-        if counter > 10000:
+        if counter > 50:
             break
 
-time.sleep(0.25)
+time.sleep(1.5) 
