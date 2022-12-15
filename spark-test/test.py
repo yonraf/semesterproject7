@@ -20,9 +20,9 @@ app = Flask(__name__)
 # sc = SparkContext(master='local', appName='pyspark-local', conf=conf)
 spark = SparkSession.builder.appName('pyspark').getOrCreate()
 
-eventsPath = "hdfs://namenode:9000/events.json"
-reposPath =  "hdfs://namenode:9000/repos.json"
-usersPath =  "hdfs://namenode:9000/users.json"
+eventsPath = "hdfs://namenode:9000/events/*.json"
+reposPath =  "hdfs://namenode:9000/repos/*.json"
+usersPath =  "hdfs://namenode:9000/users/*.json"
 
 
 @app.route('/')
