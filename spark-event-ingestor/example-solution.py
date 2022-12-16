@@ -11,10 +11,10 @@ locale.getpreferredencoding()
 
 # Create SparkSession and configure it
 spark = SparkSession.builder.appName('event_ingestor') \
-    .config('spark.master', 'spark://spark-master:7077') \
+    .config('spark.master', 'spark://10.123.252.233:7077') \
     .config('spark.executor.cores', 1) \
     .config('spark.cores.max', 1) \
-    .config('spark.sql.streaming.checkpointLocation', 'hdfs://namenode:9000/stream-checkpoint/') \
+    .config('spark.sql.streaming.checkpointLocation', 'hdfs://10.123.252.233:9000/stream-checkpoint/') \
     .getOrCreate()
 
 # .config('spark.executor.memory', '1g') \
@@ -25,7 +25,7 @@ def eventsProcessing():
     df = spark \
         .readStream \
         .format("kafka") \
-        .option("kafka.bootstrap.servers", "kafka:9092") \
+        .option("kafka.bootstrap.servers", "10.123.252.200:9092") \
         .option("startingOffsets", "earliest")\
         .option("subscribe", "events") \
         .load()
@@ -67,8 +67,8 @@ def eventsProcessing():
     df.writeStream\
         .format('json')\
         .outputMode("append")\
-        .option("path", "hdfs://namenode:9000/events/")\
-        .option("checkpointLocation", "hdfs://namenode:9000/events-checkpoint/")\
+        .option("path", "hdfs://10.123.252.233:9000/events/")\
+        .option("checkpointLocation", "hdfs://10.123.252.233:9000/events-checkpoint/")\
         .start()\
         .awaitTermination()
 

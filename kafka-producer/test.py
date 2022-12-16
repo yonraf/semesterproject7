@@ -9,9 +9,8 @@ import requests
 """ ---  WRITE FROM LOCAL TO KAFKA TOPICS  --- """
 while True:
     try:
-        producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
+        producer = KafkaProducer(bootstrap_servers=['10.123.252.233:9092'])
         time.sleep(0.5)
-        # consumer = KafkaConsumer(bootstrap_servers=['kafka:9092'], group_id='group1')
         break
     except:
         time.sleep(0.5)
