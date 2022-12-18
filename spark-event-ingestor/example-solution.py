@@ -10,12 +10,14 @@ locale.getpreferredencoding()
 
 
 # Create SparkSession and configure it
-spark = SparkSession.builder.appName('event_ingestor') \
-    .config('spark.master', 'spark://10.123.252.233:7077') \
-    .config('spark.executor.cores', 1) \
-    .config('spark.cores.max', 1) \
-    .config('spark.sql.streaming.checkpointLocation', 'hdfs://10.123.252.233:9000/stream-checkpoint/') \
-    .getOrCreate()
+spark = SparkSession.builder.appName('event_ingestor').master('local').getOrCreate()
+
+    #     SparkSession.builder.appName('event_ingestor') \
+    # .config('spark.master', 'spark://10.123.252.233:7077') \
+    # .config('spark.executor.cores', 1) \
+    # .config('spark.cores.max', 1) \
+    # .config('spark.sql.streaming.checkpointLocation', 'hdfs://10.123.252.233:9000/stream-checkpoint/') \
+    # .getOrCreate()
 
 
 def eventsProcessing():
