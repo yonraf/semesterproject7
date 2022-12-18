@@ -54,6 +54,24 @@ services:
       - "SPARK_MASTER=10.123.252.233:7077"
     network_mode: host
 
+  spark-worker-2:
+    image: bde2020/spark-worker:3.3.0-hadoop3.3
+    container_name: spark-worker-2
+    ports:
+      - 8082:8082
+    environment:
+      - "SPARK_MASTER=10.123.252.233:7077"
+    network_mode: host
+
+  spark-worker-3:
+    image: bde2020/spark-worker:3.3.0-hadoop3.3
+    container_name: spark-worker-3
+    ports:
+      - 8083:8083
+    environment:
+      - "SPARK_MASTER=10.123.252.233:7077"
+    network_mode: host
+
   zookeeper1:
     image: confluentinc/cp-zookeeper:7.2.1
     container_name: zookeeper1

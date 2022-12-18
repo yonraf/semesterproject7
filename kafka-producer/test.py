@@ -9,7 +9,7 @@ import requests
 """ ---  WRITE FROM LOCAL TO KAFKA TOPICS  --- """
 while True:
     try:
-        producer = KafkaProducer(bootstrap_servers=['10.123.252.233:9092'])
+        producer = KafkaProducer(bootstrap_servers=["10.123.252.233:9092","10.123.252.200:9092","10.123.252.209:9092"])
         time.sleep(0.5)
         break
     except:

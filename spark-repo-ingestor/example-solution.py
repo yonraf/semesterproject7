@@ -24,7 +24,7 @@ def reposProcessing():
     df = spark \
         .readStream \
         .format("kafka") \
-        .option("kafka.bootstrap.servers", "10.123.252.200:9092") \
+        .option("kafka.bootstrap.servers", "10.123.252.233:9092,10.123.252.200:9092,10.123.252.209:9092") \
         .option("startingOffsets", "earliest")\
         .option("subscribe", "repos") \
         .load()
