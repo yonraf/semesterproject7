@@ -2,9 +2,16 @@
 from urllib.request import build_opener
 from pyspark import SparkConf, SparkContext
 from pyspark.sql import SparkSession
-from flask import Flask
-import json
+from pyspark.sql.types import StructType, StructField, StringType
+from pyspark.sql.functions import  col
 
+
+
+from flask import Flask
+from flask_cors import CORS, cross_origin
+
+import json
+import requests
 
 
 import locale
@@ -12,13 +19,14 @@ locale.getdefaultlocale()
 locale.getpreferredencoding()
 
 app = Flask(__name__)
+CORS(app)
 
 
 
 # Limit cores to 1, and tell each executor to use one core = only one executor is used by Spark
 # conf = SparkConf().set('spark.executor.cores', 1).set('spark.cores.max',1).set('spark.executor.memory', '1g').set('spark.driver.host', '127.0.0.1')
 # sc = SparkContext(master='local', appName='pyspark-local', conf=conf)
-spark = SparkSession.builder.appName('pyspark').getOrCreate()
+spark = SparkSession.builder.appName('backend').getOrCreate()
 
 eventsPath = "hdfs://namenode:9000/events/*.json"
 reposPath =  "hdfs://namenode:9000/repos/*.json"
@@ -30,6 +38,7 @@ def index():
     return 'Ya kalb'
 
 @app.route('/user/most/repos')
+@cross_origin()
 def most_repos(): 
    
     df = spark.read.json(usersPath)
@@ -47,6 +56,7 @@ def most_repos():
 
 
 @app.route('/user/least/repos')
+@cross_origin()
 def least_repos():
     df = spark.read.json(usersPath)
     df.createOrReplaceTempView("users")
@@ -60,6 +70,7 @@ def least_repos():
     return username + ' is the user with least repositories of ' + str(repos)
 
 @app.route('/user/most/followers')
+@cross_origin()
 def most_followers():
     df = spark.read.json(usersPath)
     df.createOrReplaceTempView("users")
@@ -75,6 +86,7 @@ def most_followers():
 
 
 @app.route('/user/least/followers')
+@cross_origin()
 def least_followers():
     df = spark.read.json(usersPath)
     df.createOrReplaceTempView("users")
@@ -90,6 +102,7 @@ def least_followers():
 
 
 @app.route('/user/most/following')
+@cross_origin()
 def most_followings():
     df = spark.read.json(usersPath)
     df.createOrReplaceTempView("users")
@@ -105,6 +118,7 @@ def most_followings():
 
 
 @app.route('/user/least/following')
+@cross_origin()
 def least_followings():
     df = spark.read.json(usersPath)
     df.createOrReplaceTempView("users")
@@ -120,6 +134,7 @@ def least_followings():
 
 # What repository has the (most/least) number of (stars/forks/watchers)?
 @app.route('/repos/most/stars')
+@cross_origin()
 def most_stars():
     
     df = spark.read.json(reposPath)
@@ -136,6 +151,7 @@ def most_stars():
 
 
 @app.route('/repos/least/stars')
+@cross_origin()
 def least_stars():
     
     df = spark.read.json(reposPath)
@@ -151,6 +167,7 @@ def least_stars():
     return name + ' is the repository with least stars of '+ str(stars)
 
 @app.route('/repos/most/watchers')
+@cross_origin()
 def most_watchers():
     
     df = spark.read.json(reposPath)
@@ -166,6 +183,7 @@ def most_watchers():
     return name + ' is the repository with most watchers of ' + str(watchers)
 
 @app.route('/repos/least/watchers')
+@cross_origin()
 def least_watchers():
     
     df = spark.read.json(reposPath)
@@ -181,6 +199,7 @@ def least_watchers():
     return name + ' is the repository with least watchers of ' + str(watchers)
 
 @app.route('/repos/most/forks')
+@cross_origin()
 def most_forks():
     
     df = spark.read.json(reposPath)
@@ -196,6 +215,7 @@ def most_forks():
     return name + ' is the repository with most forks of ' + str(forks)
 
 @app.route('/repos/least/forks')
+@cross_origin()
 def least_forks():
     
     df = spark.read.json(reposPath)
@@ -233,6 +253,7 @@ def least_forks():
 
 
 @app.route('/repos/has/wiki')
+@cross_origin()
 def has_wiki():
     
     df = spark.read.json(reposPath)
@@ -255,6 +276,7 @@ def has_wiki():
 
 # What is the most/least common event?
 @app.route('/event/most/common')
+@cross_origin()
 def most_common_event():
 
     df = spark.read.json(eventsPath)
@@ -269,6 +291,7 @@ def most_common_event():
     return 'The most common event is '+ data
 
 @app.route('/event/least/common')
+@cross_origin()
 def least_common_event():
 
     df = spark.read.json(eventsPath)
@@ -282,6 +305,7 @@ def least_common_event():
     return 'The least common event is '+ data
 
 @app.route('/event/first')
+@cross_origin()
 def first_event():
 
     df = spark.read.json(eventsPath)
@@ -297,6 +321,7 @@ def first_event():
     return 'The first event is '+ data
 
 @app.route('/event/last')
+@cross_origin()
 def last_event():
 
     df = spark.read.json(eventsPath)
@@ -310,8 +335,33 @@ def last_event():
 
     return 'The last event is '+ data
 
+# live data from github api
+@app.route('/latest/events')
+@cross_origin()
+def latest_events():
+    response_API = requests.get('https://api.github.com/events?per_page=100')
+
+    data = json.loads(response_API.text)
+
+    schema = StructType([
+        StructField("id", StringType()),
+        StructField("type", StringType())
+    ])
+
+    # Insert data into schema
+    df = spark.read.schema(schema).json(data)
+    # Change column names
+    df = df.withColumn("ID", col("id")) \
+        .withColumn("Type", col("type")) 
+
+    df.createOrReplaceTempView('events')
 
 
+    distribution_of_types = df.groupBy("Type").count()
+
+    type_string = distribution_of_types.toPandas().to_string()
+
+    return type_string
 
 
 if __name__ == '__main__':
