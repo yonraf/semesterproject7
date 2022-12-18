@@ -90,6 +90,8 @@ services:
     ports:
       - 29092:29092
       - 9092:9092
+    expose:
+      - '9092'
     network_mode: host
     environment:
       KAFKA_ZOOKEEPER_CONNECT: 10.123.252.233:2181,10.123.252.200:2181,10.123.252.209:2181
