@@ -26,23 +26,22 @@ CORS(app)
 # Limit cores to 1, and tell each executor to use one core = only one executor is used by Spark
 # conf = SparkConf().set('spark.executor.cores', 1).set('spark.cores.max',1).set('spark.executor.memory', '1g').set('spark.driver.host', '127.0.0.1')
 # sc = SparkContext(master='local', appName='pyspark-local', conf=conf)
-spark = SparkSession.builder.appName('backend').getOrCreate()
+spark = SparkSession.builder.appName('backend').master('local').getOrCreate()
 
-eventsPath = "hdfs://namenode:9000/events/*.json"
-reposPath =  "hdfs://namenode:9000/repos/*.json"
-usersPath =  "hdfs://namenode:9000/users/*.json"
+eventsPath = "hdfs://10.123.252.233:9000/events/*.json"
+reposPath =  "hdfs://10.123.252.233:9000/repos/*.json"
+usersPath =  "hdfs://10.123.252.233:9000/users/*.json"
 
 
 @app.route('/')
 def index():
-    return 'Ya kalb'
+    return 'Hello World'
 
 @app.route('/user/most/repos')
 @cross_origin()
 def most_repos(): 
    
     df = spark.read.json(usersPath)
-    # result = df.groupBy('Username').max('Repositories').collect()
     
     df.createOrReplaceTempView("users")
 

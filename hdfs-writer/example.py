@@ -14,31 +14,31 @@ def upload_to_hdfs(topic, data):
     if topic == "processed_repos":
         if client.status('/repos.json', strict=False) == None:
             with client.write('/repos.json', encoding='utf-8', overwrite=True) as writer:
-                writer.write(json.dumps(data))
+                writer.write(data)
                 writer.write("\n")
         else:
             with client.write('/repos.json', encoding='utf-8', append=True) as writer:
-                writer.write(json.dumps(data))
+                writer.write(data)
                 writer.write("\n")
 
     elif topic == "processed_users":
         if client.status('/users.json', strict=False) == None:
             with client.write('/users.json', encoding='utf-8', overwrite=True) as writer:
-                writer.write(json.dumps(data))
+                writer.write(data)
                 writer.write("\n")
         else:
             with client.write('/users.json', encoding='utf-8', append=True) as writer:
-                writer.write(json.dumps(data))
+                writer.write(data)
                 writer.write("\n")
 
     elif topic == "processed_events":
         if client.status('/events.json', strict=False) == None:
             with client.write('/events.json', encoding='utf-8', overwrite=True) as writer:
-                writer.write(json.dumps(data))
+                writer.write(data)
                 writer.write("\n")
         else:
             with client.write('/events.json', encoding='utf-8', append=True) as writer:
-                writer.write(json.dumps(data))
+                writer.write(data)
                 writer.write("\n")
 
 while True:

@@ -30,6 +30,14 @@ services:
       context: spark-user-ingestor
     environment:
       - ENABLE_INIT_DAEMON=false
+  
+  backend:
+    build:
+      context: backend
+    environment:
+      - ENABLE_INIT_DAEMON=false
+    expose:
+      - "3000"
 
 networks:
   default:
