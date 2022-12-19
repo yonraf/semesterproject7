@@ -144,7 +144,7 @@ def most_stars():
     data = query.collect()[0]
     
     name = data['Name']
-    stars = data['Stargazers']
+    stars = data['Stars']
     
     return name + ' is the repository with most stars of ' + str(stars)
 
