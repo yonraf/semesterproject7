@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/build" />
+      <excludeFolder url="file://$MODULE_DIR$/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/linux/flutter/ephemeral/.plugin_symlinks/dialogflow_grpc/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/linux/flutter/ephemeral/.plugin_symlinks/dialogflow_grpc/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/linux/flutter/ephemeral/.plugin_symlinks/dialogflow_grpc/build" />
+      <excludeFolder url="file://$MODULE_DIR$/linux/flutter/ephemeral/.plugin_symlinks/dialogflow_grpc/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/linux/flutter/ephemeral/.plugin_symlinks/dialogflow_grpc/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/linux/flutter/ephemeral/.plugin_symlinks/dialogflow_grpc/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/windows/flutter/ephemeral/.plugin_symlinks/dialogflow_grpc/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/windows/flutter/ephemeral/.plugin_symlinks/dialogflow_grpc/build" />
+      <excludeFolder url="file://$MODULE_DIR$/windows/flutter/ephemeral/.plugin_symlinks/dialogflow_grpc/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/windows/flutter/ephemeral/.plugin_symlinks/dialogflow_grpc/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/windows/flutter/ephemeral/.plugin_symlinks/dialogflow_grpc/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/windows/flutter/ephemeral/.plugin_symlinks/dialogflow_grpc/example/build" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Dart SDK" level="project" />
+    <orderEntry type="library" name="Dart Packages" level="project" />
+    <orderEntry type="library" name="Flutter Plugins" level="project" />
+  </component>
+</module>
