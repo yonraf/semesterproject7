@@ -94,74 +94,74 @@ class _ChatState extends State<Chat> {
     http.Response response;
 
     if (fulfillmentText == "mostrepositories") {
-      response = await http.get(Uri.parse("http://172.21.112.1:3000/user/most/repos"));
+      response = await http.get(Uri.parse("http://10.123.252.233:3000/user/most/repos"));
       fulfillmentText = response.body;
     } else if (fulfillmentText == "leastrepositories") {
-      response = await http.get(Uri.parse("http://172.21.112.1:3000/user/least/repos"));
+      response = await http.get(Uri.parse("http://10.123.252.233:3000/user/least/repos"));
       fulfillmentText = response.body;
     } else if (fulfillmentText == "mostfollowing") {
       response =
-      await http.get(Uri.parse("http://172.21.112.1:3000/user/most/following"));
+      await http.get(Uri.parse("http://10.123.252.233:3000/user/most/following"));
       fulfillmentText = response.body;
     } else if (fulfillmentText == "leastfollowing") {
       response =
-      await http.get(Uri.parse("http://172.21.112.1:3000/user/least/following"));
+      await http.get(Uri.parse("http://110.123.252.233:3000/user/least/following"));
           fulfillmentText = response.body;
           } else if(fulfillmentText == "mostfollowers")
       {
         response =
-        await http.get(Uri.parse("http://172.21.112.1:3000/user/most/followers"));
+        await http.get(Uri.parse("http://10.123.252.233:3000/user/most/followers"));
             fulfillmentText = response.body;
             } else if(fulfillmentText == "leastfollowers")
         {
           response =
-          await http.get(Uri.parse("http://172.21.112.1:3000/user/least/followers"));
+          await http.get(Uri.parse("http://10.123.252.233:3000/user/least/followers"));
               fulfillmentText = response.body;
 
               } else if(fulfillmentText == "moststars")
           {
             response =
-            await http.get(Uri.parse("http://172.21.112.1:3000/repos/most/stars"));
+            await http.get(Uri.parse("http://10.123.252.2333000/repos/most/stars"));
                 fulfillmentText = response.body;
                 } else if(fulfillmentText == "leaststars")
             {
               response =
-              await http.get(Uri.parse("http://172.21.112.1:3000/repos/least/stars"));
+              await http.get(Uri.parse("http://10.123.252.233:3000/repos/least/stars"));
                   fulfillmentText = response.body;
                   } else if(fulfillmentText == "mostforks")
               {
                 response =
-                await http.get(Uri.parse("http://172.21.112.1:3000/repos/most/forks"));
+                await http.get(Uri.parse("http://10.123.252.233:3000/repos/most/forks"));
                     fulfillmentText = response.body;
                     } else if(fulfillmentText == "mostwatchers")
                 {
                   response = await http.get(
-                      Uri.parse("http://172.21.112.1:3000/repos/most/watchers"));
+                      Uri.parse("http://10.123.252.233:3000/repos/most/watchers"));
                       fulfillmentText = response.body;
                       } else if(fulfillmentText == "leastwatchers")
                   {
                     response = await http.get(
-                        Uri.parse("http://172.21.112.1:3000/repos/least/watchers"));
+                        Uri.parse("http://10.123.252.233:3000/repos/least/watchers"));
                         fulfillmentText = response.body;
                         } else if(fulfillmentText == "leastforks")
                     {
                       response = await http.get(
-                          Uri.parse("http://172.21.112.1:3000/repos/least/forks"));
+                          Uri.parse("http://10.123.252.233:3000/repos/least/forks"));
                           fulfillmentText = response.body;
                           }
                           else if(fulfillmentText == "mostcommonevent")
                       {
                         response = await http.get(
-                            Uri.parse("http://172.21.112.1:3000/event/most/common"));
+                            Uri.parse("http://10.123.252.233:3000/event/most/common"));
                             fulfillmentText = response.body;
                             }
                             else if(fulfillmentText == "leastcommonevent")
                         {
                           response = await http.get(Uri.parse(
-                              "http://172.21.112.1:3000/event/least/common"));
+                              "http://10.123.252.233:3000/event/least/common"));
                           fulfillmentText = response.body;
                               } else if(fulfillmentText == "repowithwiki"){
-                              response = await http.get(Uri.parse("http://172.21.112.1:3000/repos/has/wiki"));
+                              response = await http.get(Uri.parse("http://10.123.252.233:3000/repos/has/wiki"));
                               fulfillmentText = response.body;
                           }
                             else {
