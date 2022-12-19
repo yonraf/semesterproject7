@@ -163,6 +163,9 @@ class _ChatState extends State<Chat> {
                               } else if(fulfillmentText == "repowithwiki"){
                               response = await http.get(Uri.parse("http://10.123.252.233:3000/repos/has/wiki"));
                               fulfillmentText = response.body;
+                          } else if(fulfillmentText == "recentevents"){
+                              response = await http.get(Uri.parse("http://10.123.252.233:3000/latest/events"))
+                              fulfillmentText = response.body;
                           }
                             else {
                           fulfillmentText = "Sorry, I am not familiar with this question.";
