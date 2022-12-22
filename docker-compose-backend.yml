@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: backend
+    environment:
+      - ENABLE_INIT_DAEMON=false
+    ports:
+      - 3000:3000
+
+networks:
+  default:
+    name: big-data-network

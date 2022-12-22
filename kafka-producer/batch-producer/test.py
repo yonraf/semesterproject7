@@ -17,7 +17,7 @@ while True:
     
 time.sleep(1)
 
-with open('./users.json') as f:
+with open('./batch_users.json') as f:
     counter = 0
     lines = f.readlines()
     for line in lines:
@@ -28,7 +28,7 @@ with open('./users.json') as f:
 time.sleep(0.5)
 
 # events get inserted into kafka
-with open('./events.json') as f:
+with open('./batch_events.json') as f:
     counter = 0
     lines = f.readlines()
     for line in lines:
@@ -41,7 +41,7 @@ time.sleep(0.5)
 
 
 # repos get inserted into kafka
-with open('./repos.json') as f:
+with open('./batch_repos.json') as f:
     counter = 0
     lines = f.readlines()
     for line in lines:

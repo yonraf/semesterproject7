@@ -2,3 +2,4 @@ pyspark
 argparse
 flask[async]
 flask_cors
+requests

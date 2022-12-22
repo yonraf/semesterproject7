@@ -36,8 +36,8 @@ services:
       context: backend
     environment:
       - ENABLE_INIT_DAEMON=false
-    expose:
-      - "3000"
+    ports:
+      - 3000:3000
 
 networks:
   default:

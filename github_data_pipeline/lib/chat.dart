@@ -1,24 +1,9 @@
-// Copyright 2021 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sound_stream/sound_stream.dart';
 
-// TODO import Dialogflow
 import 'package:dialogflow_grpc/dialogflow_grpc.dart';
 import 'package:dialogflow_grpc/generated/google/cloud/dialogflow/v2beta1/session.pb.dart';
 import 'package:http/http.dart' as http;
@@ -42,7 +27,6 @@ class _ChatState extends State<Chat> {
   late StreamSubscription<List<int>> _audioStreamSubscription;
   late BehaviorSubject<List<int>> _audioStream;
 
-  // TODO DialogflowGrpcV2Beta1 class instance
 
   DialogflowGrpcV2Beta1 ? dialogflow;
 
@@ -61,7 +45,6 @@ class _ChatState extends State<Chat> {
     super.dispose();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlugin() async {
     _recorderStatus = _recorder.status.listen((status) {
       if (mounted) {
@@ -75,11 +58,8 @@ class _ChatState extends State<Chat> {
       _recorder.initialize()
     ]);
 
-    // TODO Get a Service account
-    // Get a Service account
     final serviceAccount = ServiceAccount.fromString(
         '${(await rootBundle.loadString('assets/credentials.json'))}');
-    // Create a DialogflowGrpc Instance
     dialogflow = DialogflowGrpcV2Beta1.viaServiceAccount(serviceAccount);
   }
 
@@ -178,7 +158,7 @@ class _ChatState extends State<Chat> {
     print(text);
     _textController.clear();
 
-    //TODO Dialogflow Code
+
     ChatMessage message = ChatMessage(
       text: text,
       name: "You",
@@ -191,8 +171,6 @@ class _ChatState extends State<Chat> {
     DetectIntentResponse? data = await dialogflow?.detectIntent(text, 'en-US');
     String? fulfillmentText = data?.queryResult.fulfillmentText;
     print(fulfillmentText);
-
-    // HANDLE FULFILLMENT HERE
 
     String? github = await handleFulfillment(fulfillmentText);
 
@@ -220,12 +198,6 @@ class _ChatState extends State<Chat> {
       _audioStream.add(data);
     });
 
-
-    // TODO Create SpeechContexts
-    // Create an audio InputConfig
-
-    // TODO Make the streamingDetectIntent call, with the InputConfig and the audioStream
-    // TODO Get the transcript and detectedIntent and show on screen
     var biasList = SpeechContextV2Beta1(
         phrases: [
           'Dialogflow CX',
@@ -236,7 +208,6 @@ class _ChatState extends State<Chat> {
         boost: 20.0
     );
 
-    // See: https://cloud.google.com/dialogflow/es/docs/reference/rpc/google.cloud.dialogflow.v2#google.cloud.dialogflow.v2.InputAudioConfig
     var config = InputConfigV2beta1(
         encoding: 'AUDIO_ENCODING_LINEAR_16',
         languageCode: 'en-US',
@@ -247,16 +218,13 @@ class _ChatState extends State<Chat> {
 
     final responseStream = dialogflow?.streamingDetectIntent(
         config, _audioStream);
-    // Get the transcript and detectedIntent and show on screen
     responseStream!.listen((data) {
-      //print('----');
       setState(() async {
         print(data);
         String transcript = data.recognitionResult.transcript;
         String queryText = data.queryResult.queryText;
         String fulfillmentText = data.queryResult.fulfillmentText;
 
-        // HANDLE FULFILLMENT HERE
         String? github = await handleFulfillment(fulfillmentText);
 
         if (fulfillmentText.isNotEmpty) {
@@ -281,15 +249,11 @@ class _ChatState extends State<Chat> {
         }
       });
     }, onError: (e) {
-      //print(e);
     }, onDone: () {
-      //print('done');
     });
   }
 
-  // The chat interface
-  //
-  //------------------------------------------------------------------------------------
+  
   @override
   Widget build(BuildContext context) {
     return Column(children: <Widget>[
@@ -343,10 +307,6 @@ class _ChatState extends State<Chat> {
 }
 
 
-//------------------------------------------------------------------------------------
-// The chat message balloon
-//
-//------------------------------------------------------------------------------------
 class ChatMessage extends StatelessWidget {
   ChatMessage({required this.text, required this.name, required this.type});
 
