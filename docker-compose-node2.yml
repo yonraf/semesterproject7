@@ -46,6 +46,21 @@ services:
     restart: unless-stopped
     depends_on:
       - zookeeper2
+  
+  init-kafka:
+    image: confluentinc/cp-kafka:7.2.1
+    depends_on:
+      - kafka2
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      kafka-topics --bootstrap-server 10.123.252.200:9092 --list
+      
+      kafka-topics --bootstrap-server 10.123.252.200:9092 --create --if-not-exists --topic users --replication-factor 3 --partitions 1
+      kafka-topics --bootstrap-server 10.123.252.200:9092 --create --if-not-exists --topic events --replication-factor 3 --partitions 1
+      kafka-topics --bootstrap-server 10.123.252.200:9092 --create --if-not-exists --topic repos --replication-factor 3 --partitions 1
+      "
+
 
 volumes:
   hadoop_datanode2:

@@ -103,6 +103,20 @@ services:
     restart: unless-stopped
     depends_on:
       - zookeeper1
+    
+  init-kafka:
+    image: confluentinc/cp-kafka:7.2.1
+    depends_on:
+      - kafka1
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      kafka-topics --bootstrap-server 10.123.252.233:9092 --list
+
+      kafka-topics --bootstrap-server 10.123.252.233:9092 --create --if-not-exists --topic users --replication-factor 3 --partitions 12
+      kafka-topics --bootstrap-server 10.123.252.233:9092 --create --if-not-exists --topic events --replication-factor 3 --partitions 12
+      kafka-topics --bootstrap-server 10.123.252.233:9092 --create --if-not-exists --topic repos --replication-factor 3 --partitions 12
+      "
 
   kowl:
     image: quay.io/cloudhut/kowl:master # We use the master tag as we want to use the latest features e.g. creation of topics.
